@@ -205,13 +205,13 @@ function getResType($type){
             return $type;
     }
 }
-if(isset($_POST['com'])){
-    startsql();
-    $command=$_POST['com'];
+if(isset($_POST['com'])){ // Parse command if it is set
+    startsql(); // Initialize sql so we can use it
+    $command=stripslashes($_POST['com']); // Fetch the command; do some anti inject stuff
     if($command=="new"){
-        if($_POST['sub']=="Add Resistor") $sql="INSERT INTO passives_res (type,color1,color2,multi,tollerance,wattage,quantity,used) VALUES ('".$_POST['type']."','".$_POST['col1']."','".$_POST['col2']."','".$_POST['multi']."',".$_POST['tol'].",".$_POST['watt'].",".$_POST['qty'].",".$_POST['used'].");";            //\"".$_POST['desc']."\",
-        if($_POST['sub']=="Add Resistors") $sql="INSERT INTO passives_res (type,color1,color2,multi,tollerance,wattage,quantity,used) VALUES ('".$_POST['type']."','".$_POST['col1']."','".$_POST['col2']."','".$_POST['multi']."',".$_POST['tol'].",".$_POST['watt'].",".$_POST['qty'].",".$_POST['used']."),('".$_POST['type2']."','".$_POST['col12']."','".$_POST['col22']."','".$_POST['multi2']."',".$_POST['tol2'].",".$_POST['watt2'].",".$_POST['qty2'].",".$_POST['used2'].");"; 
-        mysqli_query($dblink,$sql) or die(mysql_error() . "<br/>" . $sql);
+        $stmt = $db->prepare("INSERT INTO passives_res (type,color1,color2,multi,tollerance,wattage,quantity,used) VALUES (?,?,?,?,?,?,?,?);"); // generic insert statement for resistors
+        $stmt->execute(array($_POST['type'],$_POST['col1'],$_POST['col2'],$_POST['multi'],$_POST['tol'],$_POST['watt'],$_POST['qty'],$_POST['used'])); // Will awlays execute
+        if($_POST['sub']=="Add Resistors") $stmt->execute(array($_POST['type2'],$_POST['col12'],$_POST['col22'],$_POST['multi2'],$_POST['tol2'],$_POST['watt2'],$_POST['qty2'],$_POST['used2'])); 
     }
 }
 ?>
@@ -220,33 +220,38 @@ if(isset($_POST['com'])){
 <p><select onchange="goto('./resistors'+this.value,false)"><option value="" <?if(!isset($cat[2])) echo "selected"; ?>>All<option value="/carbon" <?if($cat[2]=='carbon') echo "selected"; ?>>Carbon Film<option value="/wire" <?if($cat[2]=='wire') echo "selected"; ?>>Wire Wound<option value="/network" <?if($cat[2]=='nework') echo "selected"; ?>>Resistor Network</select></p>
 <?
   startsql();
-  if(isset($cat[2])) $sql = "select * from passives_res where (type='".$cat[2]."') and ((user='".$user."') or (user is null));";
-  else $sql="select * from passives_res where (user='".$user."') or (user is null);";
-  $result = mysqli_query($dblink,$sql);
-  if(mysql_num_rows($result)){
-  echo "<table border=1 class=\"sortable\"><tr><!--th>Entry</th--><th>Qty</th><th>Value</th><th>Type</th><th>Toll.</th><th>Watts</th><th class=\"sorttable_nosort\">AUR</th></tr>";
-  while($row=mysql_fetch_array($result)){
-    $multi=color2Num($row['multi'],2);
-    $resval=color2Num($row['color1'],0).color2Num($row['multi'],1).color2Num($row['color2'],0).$multi[0];
-    $resvalraw=(color2Num($row['color1'],0).color2Num($row['color2'],0))*$multi[1];
-    $type=getResType($row['type']); 
-    echo "<tr>";
-    $unused=$row['quantity']-$row['used'];
-    if($unused<0)$unused=0;
-    //echo "<td>".$row['ID']."</td>";
-    echo "<td>".$unused."/".$row['quantity']."</td>";
-    echo "<td sorttable_customkey=\"".$resvalraw."\"><a title=\"".$row['color1']."-".$row['color2']."-".$row['multi']."\"><font color=\"black\" decoration=\"none\">".$resval."&Omega;</font></a></td>";
-    echo "<td>".$type."</td>";
-    echo "<td>&plusmn;".$row['tollerance']."%</td>";
-    echo "<td>".$row['wattage']."W</td>";
-    echo "<td><form method=\"post\"><select name=\"com\" ><option value=\"add\">add<option value=\"use\">use<option value=\"rm\">remove</select><input type=\"text\" onKeyPress=\"return onlyNumbers()\" size=2 name=\"val\"><input type=\"image\" valign=\"middle\" src=\"go.gif\" width=30 height=16 border=0 value=\"\"><input type=\"hidden\" name=\"id\" value=\"".$row['ID']."\"></form></td>";
-    echo "</tr>\n";
+  if(isset($cat[2])) $stmt = $db->query("select * from passives_res where (type='".mysql_real_escape_string($cat[2])."') and ((user='".$user."') or (user is null));");
+  else $stmt = $db->query("select * from passives_res where (user='".$user."') or (user is null);");
+  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  if(count($result)>0){
+      echo "<table border=1 class=\"sortable\"><tr><!--th>Entry</th--><th>Qty</th><th>Value</th><th>Type</th><th>Toll.</th><th>Watts</th><th class=\"sorttable_nosort\">AUR</th></tr>";
+      foreach($result as $row)
+      {
+        $multi=color2Num($row['multi'],2);
+        $resval=color2Num($row['color1'],0).color2Num($row['multi'],1).color2Num($row['color2'],0).$multi[0];
+        $resvalraw=(color2Num($row['color1'],0).color2Num($row['color2'],0))*$multi[1];
+        $type=getResType($row['type']); 
+        echo "<tr>";
+        $unused=$row['quantity']-$row['used'];
+        if($unused<0)$unused=0;
+        //echo "<td>".$row['ID']."</td>";
+        echo "<td>".$unused."/".$row['quantity']."</td>";
+        echo "<td sorttable_customkey=\"".$resvalraw."\"><a title=\"".$row['color1']."-".$row['color2']."-".$row['multi']."\"><font color=\"black\" decoration=\"none\">".$resval."&Omega;</font></a></td>";
+        echo "<td>".$type."</td>";
+        echo "<td>&plusmn;".$row['tollerance']."%</td>";
+        echo "<td>".$row['wattage']."W</td>";
+        echo "<td><form method=\"post\"><select name=\"com\" ><option value=\"add\">add<option value=\"use\">use<option value=\"rm\">remove</select><input type=\"text\" onKeyPress=\"return onlyNumbers()\" size=2 name=\"val\"><input type=\"image\" valign=\"middle\" src=\"go.gif\" width=30 height=16 border=0 value=\"\"><input type=\"hidden\" name=\"id\" value=\"".$row['ID']."\"></form></td>";
+        echo "</tr>\n";
 
-  }
-$result=mysql_fetch_array(mysqli_query($dblink,"select sum(quantity)-sum(used) as total, sum(quantity) as summation from passives_res where user='".$user."'"));
-echo "</table>";
-echo "Total Resistors: ".$result['total']."/".$result['summation']."<br/><small>Quantities are the following format: available/all</small>";
-}else echo "No Resistors in Database";
+      }
+    $result=mysql_fetch_array(mysqli_query($dblink,"select sum(quantity)-sum(used) as total, sum(quantity) as summation from passives_res where user='".$user."'"));
+    echo "</table>";
+    echo "Total Resistors: ".$result['total']."/".$result['summation']."<br/><small>Quantities are the following format: available/all</small>";
+    }
+    else 
+    {
+        echo "No Resistors in Database";
+    }
 //start of write  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /
 ?>
 <h2><a name="add">Add</a> a resistor</h2>
@@ -419,8 +424,8 @@ if(isset($_POST['com'])){ //check for Add/Update/Remove
 <?
   if(isset($cat[2])) $sql = "select * from passives_ind where type='".$cat[2]."' and ((user='".$user."') or (user is null))  order by value;";
   else $sql="select * from passives_ind where (user='".$user."') or (user is null) order by value;";
-  $result = mysqli_query($dblink,$sql) or die(mysql_error());
-  while($row=mysql_fetch_array($result)){
+  $result = $db->query($sql);
+  foreach($result->fetchAll(PDO::FETCH_ASSOC) as $row){
     if($row['code']) list($value,$valraw)=codetovalue($row['value']);
     else { $value=$row['value']."&mu;F"; $valraw=$row['value']*pow(10,-6);}
     echo "<tr>";

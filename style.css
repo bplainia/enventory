@@ -1,0 +1,19 @@
+a {
+	color:blue;
+	text-decoration:none;
+}
+a:visited {
+	color:blue;
+}
+a:hover {
+	color:green;
+	text-decoration:underline;
+}
+td.description {
+	max-width:500px;
+	word-wrap:break-word ;
+}
+div.hiderr {
+	color:red;
+	display:none;
+}

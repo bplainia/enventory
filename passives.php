@@ -10,7 +10,7 @@ else $title="Passives";
 include "config.php";
 include "header.php";
 if(!isset($cat) || @$_POST['gomain']){ ?>
-<h1>Pasives</h1>
+<h1>Passives</h1>
 Select a Category:<ul>
 <li><a href="passives.php/capacitors">Capacitors</a></li>
 <li><a href="passives.php/resistors">Resistors</a></li>

@@ -201,6 +201,7 @@ function getResType($type){
         case "carbon": 
             return "Carbon Film"; 
         case "wire": return "Wire Wound"; 
+        case "smd": return "SMD";
         default:
             return $type;
     }
@@ -209,15 +210,15 @@ if(isset($_POST['com'])){ // Parse command if it is set
     startsql(); // Initialize sql so we can use it
     $command=stripslashes($_POST['com']); // Fetch the command; do some anti inject stuff
     if($command=="new"){
-        $stmt = $db->prepare("INSERT INTO passives_res (type,color1,color2,multi,tollerance,wattage,quantity,used) VALUES (?,?,?,?,?,?,?,?);"); // generic insert statement for resistors
-        $stmt->execute(array($_POST['type'],$_POST['col1'],$_POST['col2'],$_POST['multi'],$_POST['tol'],$_POST['watt'],$_POST['qty'],$_POST['used'])); // Will awlays execute
-        if($_POST['sub']=="Add Resistors") $stmt->execute(array($_POST['type2'],$_POST['col12'],$_POST['col22'],$_POST['multi2'],$_POST['tol2'],$_POST['watt2'],$_POST['qty2'],$_POST['used2'])); 
+        $stmt = $db->prepare("INSERT INTO passives_res (type,color1,color2,multi,tollerance,wattage,quantity,used,extra) VALUES (?,?,?,?,?,?,?,?,?);"); // generic insert statement for resistors
+        $stmt->execute(array($_POST['type'],$_POST['col1'],$_POST['col2'],$_POST['multi'],$_POST['tol'],$_POST['watt'],$_POST['qty'],$_POST['used'],"{smdsize:".$_POST['extra1size']."}")); // Will awlays execute
+        if($_POST['sub']=="Add Resistors") $stmt->execute(array($_POST['type2'],$_POST['col12'],$_POST['col22'],$_POST['multi2'],$_POST['tol2'],$_POST['watt2'],$_POST['qty2'],$_POST['used2'],"{smdsize:".$_POST['extra2size']."}")); 
     }
 }
 ?>
 <h1>Resistors</h1>
 <a href="passives.php">Back to passives home</a>
-<p><select onchange="goto('./resistors'+this.value,false)"><option value="" <?if(!isset($cat[2])) echo "selected"; ?>>All<option value="/carbon" <?if($cat[2]=='carbon') echo "selected"; ?>>Carbon Film<option value="/wire" <?if($cat[2]=='wire') echo "selected"; ?>>Wire Wound<option value="/network" <?if($cat[2]=='nework') echo "selected"; ?>>Resistor Network</select></p>
+<p><select onchange="goto('./passives.php/resistors'+this.value,false)"><option value="" <?if(!isset($cat[2])) echo "selected"; ?>>All<option value="/carbon" <?if(@$cat[2]=='carbon') echo "selected"; ?>>Carbon Film<option value="/wire" <?if(@$cat[2]=='wire') echo "selected"; ?>>Wire Wound<option value="/network" <?if(@$cat[2]=='nework') echo "selected"; ?>>Resistor Network<option value="smd" <?php if(@$cat[2]=="/smd") echo "selected";?>>SMD</select></p>
 <?
   startsql();
   if(isset($cat[2])) $stmt = $db->query("select * from passives_res where (type='".mysql_real_escape_string($cat[2])."') and ((user='".$user."') or (user is null));");
@@ -244,9 +245,14 @@ if(isset($_POST['com'])){ // Parse command if it is set
         echo "</tr>\n";
 
       }
-    $result=mysql_fetch_array(mysqli_query($dblink,"select sum(quantity)-sum(used) as total, sum(quantity) as summation from passives_res where user='".$user."'"));
+    $sql = "select sum(quantity) as qty, sum(used) as used from passives_res where user=:user;";
+    $stmt=$db->prepare($sql);
+    $stmt->execute(array(":user"=>$user));
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
     echo "</table>";
-    echo "Total Resistors: ".$result['total']."/".$result['summation']."<br/><small>Quantities are the following format: available/all</small>";
+    echo "<p>\"$sql\" ($user) Returned:".print_r($result,true)."</p>";
+    echo "Total Resistors: ".($result['qty']-$result['used'])."/".$result['qty']."<br/><small>Quantities are the following format: 
+available/all</small>";
     }
     else 
     {
@@ -259,7 +265,8 @@ if(isset($_POST['com'])){ // Parse command if it is set
 <!--tr><td></td><td></td><td column=3><input type="hidden" name="ignore" value="true" tabindex=10 /><input type="checkbox" value="false" name="ignore" id="ignorer" checked="true" />Ignore</td><td></td><tr-->
 <tr><td align="right">Quantity:</td><td><input tabindex=1 type="text" size=2 name="qty" /></td><td align="right">Quantity:</td><td><input type="text" size=2 name="qty2" onclick="document.getElementById('ignorer').checked='false';" tabindex=11 /></td></tr>
 <tr><td align="right">Used:</td><td><input tabindex=2 type="text" size=2 value="0" name="used" /></td><td align="right">Used:</td><td><input tabindex=12 type="text" size=2 value="0" name="used2" /></td></tr>
-<tr><td align="right">Type:</td><td><select tabindex=3 name="type"><option value="carbon" selected>Carbon Film</option><option value="wire">Wire-wound</option><option value="network">Resistor Network</option></select></td><td align="right">Type:</td><td><select tabindex=13 name="type2"><option value="carbon" selected>Carbon Film</option><option value="wire">Wire-wound</option><option value="network">Resistor Network</option></select></td><tr>
+<tr><td align="right">Type:</td><td><select tabindex=3 name="type" onchange="document.getElementById('smdize1').style.display = (this.value=='smd')?'inline':'hidden'"><option value="carbon" selected>Carbon Film</option><option value="wire">Wire-wound</option><option value="network">Resistor Network</option><option value="smd">SMD</option></select></td><td align="right">Type:</td><td><select tabindex=13 name="type2"><option value="carbon" selected>Carbon Film</option><option value="wire">Wire-wound</option><option value="network">Resistor Network</option><option value="smd">SMD</option></select></td><tr>
+<tr id="smdize1" style="display:hidden;"><td align="right">Size of SMD:</td><td><input type="textbox" size="2" name="extra1size"></td><td align="right">Size of SMD:</td><td><input type="textbox" size="2" name="extra2size"></td></tr>
 <tr><td align="right">Band 1:</td><td><select tabindex=4 name="col1"><option value="brown">1 Brown</option><option value="red">2 Red</option><option value="orange">3 Orange</option><option value="yellow">4 yellow</option><option value="green">5 green</option><option value="blue">6 blue</option><option value="purple">7 purple</option><option value="grey">8 grey</option><option value="white">9 white</option></select></td><td align="right">Band 1:</td><td><select tabindex=14 name="col12"><option value="brown">1 Brown</option><option value="red">2 Red</option><option value="orange">3 Orange</option><option value="yellow">4 yellow</option><option value="green">5 green</option><option value="blue">6 blue</option><option value="purple">7 purple</option><option value="grey">8 grey</option><option value="white">9 white</option></select></td></tr>
 <tr><td align="right">Band 2:</td><td><select tabindex=5 name="col2"><option value="black">0 black</option><option value="brown">1 brown</option><option value="red">2 red</option><option value="orange">3 orange</option><option value="yellow">4 yellow</option><option value="green">5 green</option><option value="blue">6 blue</option><option value="purple">7 purple</option><option value="grey">8 grey</option><option value="white">9 white</option></select></td><td align="right">Band 2:</td><td><select tabindex=15 name="col22"><option value="black">0 black</option><option value="brown">1 brown</option><option value="red">2 red</option><option value="orange">3 orange</option><option value="yellow">4 yellow</option><option value="green">5 green</option><option value="blue">6 blue</option><option value="purple">7 purple</option><option value="grey">8 grey</option><option value="white">9 white</option></select></td></tr>
 <tr><td align="right">Multiplier:</td><td><select tabindex=6 name="multi"><option value="silver">none .12</option><option value="gold">gold 1.2</option><option value="black" selected="selected">black 12</option><option value="brown">brown 120</option><option value="red">red 1.2K</option><option value="orange">orange 12K</option><option value="yellow">yellow 120K</option><option value="green">green 1.2M</option><option value="blue">blue 12M</option><option value="purple">purple 120M</option></select></td><td align="right">Multiplier:</td><td><select tabindex=16 name="multi2"><option value="silver">none .12</option><option value="gold">gold 1.2</option><option value="black" selected="selected">black 12</option><option value="brown">brown 120</option><option value="red">red 1.2K</option><option value="orange">orange 12K</option><option value="yellow">yellow 120K</option><option value="green">green 1.2M</option><option value="blue">blue 12M</option><option value="purple">purple 120M</option></select></td></tr>

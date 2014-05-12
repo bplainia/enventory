@@ -1,14 +1,17 @@
-<?
+<?php
 if(isset($_SERVER['PATH_INFO'])){
 $cat=$_SERVER['PATH_INFO'];
 $cat=explode('/',$cat);
 }
 
 if(@$cat[1]=="ICs")$title="Integrated Circuts";
+elseif (@$cat[1]=="transistors")$title="Transistors, SCR's";
+elseif (@$cat[1]=="diodes")$title="Diodes";
 else $title="Silicon Valley";
 include "config.php";
 include "header.php";
-if(!isset($cat)){ // this catches if no second '/' ?>
+if(!isset($cat)){ // this catches if no second '/' 
+?>
 <h1>Silicon Valley</h1>
 Select a Category:<ul>
 <li><a href="/semiconductors.php/ICs">IC's</a></li>
@@ -131,19 +134,21 @@ if(!isset($cat[2])) $cat[2]=null;
     }
 </script>
 <form action="" method="post" name="reciever">Add a Part:<table border=0>
-<tr><td align="right">Quantity:</td><td><input tabindex=1 type="text" name="qty" size=2 onkeypress="return onlyNumbers()" /></td></tr>
-<tr><td align="right">ID#:</td><td><input tabindex=2 type="text" name="num" /></td></tr>
-<tr><td align="right">Type:</td><td><select tabindex=3 name="type"><option value="" selected disabled>Select One</option><option value="linear">Linear/Analog</option><option value="mcu">MCU</option><option value="mpu">Microprocessor</option><option value="mem">Memory</option><option value="logic">Logic Chip</option><option value="reg">Regulator</option><option value="interface">Interface</option></select></td></tr>
-<tr><td align="right">Package:</td><td><!--select id="pkg"><option value="TO-3">TO-3<option vlaue="DIP">DIP<option value="SIP">SIP</select-->
+	<tr><td class="labels">Quantity:</td>
+	<td><input tabindex=1 type="text" name="qty" size=2 onkeypress="return onlyNumbers()" /></td></tr>
+	<tr><td class="labels">ID#:</td><td><input tabindex=2 type="text" name="num" /></td></tr>
+	<tr><td class="labels">Type:</td>
+	<td><select tabindex=3 name="type"><option value="" selected disabled>Select One</option><option value="linear">Linear/Analog</option><option value="mcu">MCU</option><option value="mpu">Microprocessor</option><option value="mem">Memory</option><option value="logic">Logic Chip</option><option value="reg">Regulator</option><option value="interface">Interface</option></select></td></tr>
+	<tr><td class="labels">Package:</td><td><!--select id="pkg"><option value="TO-3">TO-3<option vlaue="DIP">DIP<option value="SIP">SIP</select-->
 <table border=1><tr>
-<td valign="middle"><input  tabindex=4 type="radio" name="pkg" value="DIP" id="dipradio" /><img src="images/555.jpg" height=50  onclick="document.getElementById('dipradio').checked=true;" /></td>
-<td valign="middle"><input type="radio" name="pkg" value="TO-220" id="to220radio" /><img src="images/TO-220" height="50" onclick="document.getElementById('to220radio').checked=true;" /></td>
-<td valign="middle"><input type="radio" name="pkg" value="SIP" id="sipradio" /><img src="images/SIP.jpg" height=50 onclick="document.getElementById('sipradio').checked=true;" /></td>
-<td valign="middle"><input type="radio" name="pkg" value="SOT-23" id="SOT23radio" /><img src="images/SOT-23-8.jpg" height="50" onclick="document.getElementById('SOT23radio').checked=true;" /></td>
+	<td class="border"><input  tabindex=4 type="radio" name="pkg" value="DIP" id="dipradio" /><img src="images/555.jpg" height=50  onclick="document.getElementById('dipradio').checked=true;" /></td>
+	<td class="border"><input type="radio" name="pkg" value="TO-220" id="to220radio" /><img src="images/TO-220" height="50" onclick="document.getElementById('to220radio').checked=true;" /></td>
+	<td class="border"><input type="radio" name="pkg" value="SIP" id="sipradio" /><img src="images/SIP.jpg" height=50 onclick="document.getElementById('sipradio').checked=true;" /></td>
+	<td class="border"><input type="radio" name="pkg" value="SOT-23" id="SOT23radio" /><img src="images/SOT-23-8.jpg" height="50" onclick="document.getElementById('SOT23radio').checked=true;" /></td>
 </tr></table></td></tr>
-<tr><td align="right">Pins:</td><td><input tabindex=5 type="text" name="pins" onkeypress="return onlyNumbers()" size=2 /></td></tr>
-<tr><td align="right">Description:</td><td><textarea  tabindex=6 name="descript" onkeyup="document.getElementById('char').innerHTML='You have used '+this.value.length+' Characters.(60 recomended max)';"></textarea><div id="char">You have used 0 Characters.(60 recomended max)</div></td></tr>
-<tr><td align="right">Location:</td><td>
+	<tr><td class="labels">Pins:</td><td><input tabindex=5 type="text" name="pins" onkeypress="return onlyNumbers()" size=2 /></td></tr>
+	<tr><td class="labels">Description:</td><td><textarea  tabindex=6 name="descript" onkeyup="document.getElementById('char').innerHTML='You have used '+this.value.length+' Characters.(60 recomended max)';"></textarea><div id="char">You have used 0 Characters.(60 recommended max)</div></td></tr>
+	<tr><td class="labels">Location:</td><td>
 <select name="box" onChange="getLocs(this.value)">
   <option value="0" selected disabled>Select One</option>
 <?php
@@ -154,7 +159,7 @@ foreach($statement->fetchAll(PDO::FETCH_ASSOC) as $row){
  ?></select>
  <div id="locationDiv"><select name="boxLoc" id="selection"><option>Please select a Cabinent/Box</option></select></div>
  </td></tr>
-<tr><td align="right">Datasheet URL:</td><td><input  tabindex=8 type="text" name="dataURL"</td></tr>
+<tr><td class="labels">Datasheet URL:</td><td><input  tabindex=8 type="text" name="dataURL"</td></tr>
 <tr><td></td><td><input type="submit"  tabindex=9 value="Add Chip"></td></tr>
 <input type="hidden" name="com" value="new" />
 </table></form></p>
@@ -218,21 +223,21 @@ if(isset($_POST['com'])){ //check for Add/Update/Remove
 ?>
 <p>
 <form action="" method="post" name="reciever">Add a Part:<table border=0>
-<tr><td align="right">Quantity:</td><td><input type="text" name="qty" size=2 onkeypress="return onlyNumbers()" /></td></tr>
-<tr><td align="right">ID#:</td><td><input type="text" name="num" /></td></tr>
-<tr><td align="right">Type:</td><td><select name="type"><option value="NPN">NPN<option value="PNP">PNP<option value="SCR">SCR<option value="FET">FET<option value="NMOSFET">N-type MOSFET<option value="PMOSFET">P-type MOSFET</select></td></tr>
-<tr><td align="right">Package:</td><td>
+<tr><td class="labels">Quantity:</td><td><input type="text" name="qty" size=2 onkeypress="return onlyNumbers()" /></td></tr>
+<tr><td class="labels">ID#:</td><td><input type="text" name="num" /></td></tr>
+<tr><td class="labels">Type:</td><td><select name="type"><option value="NPN">NPN<option value="PNP">PNP<option value="SCR">SCR<option value="FET">FET<option value="NMOSFET">N-type MOSFET<option value="PMOSFET">P-type MOSFET</select></td></tr>
+<tr><td class="labels">Package:</td><td>
 <table border=1><tr>
-<td valign="middle"><input type="radio" name="pkg" value="TO-92" id="to92radio" checked/><img src="images/TO-92.jpg" height=50  onclick="document.getElementById('to92radio').checked=true;" alt="TO-92" title="TO-92" /></td>
-<td valign="middle"><input type="radio" name="pkg" value="TO-220" id="to220radio" /><img src="images/TO-220" height="50" onclick="document.getElementById('to220radio').checked=true;" alt="TO-220" title="TO-220" /></td>
-<td valign="middle"><input type="radio" name="pkg" value="TO-202" id="to202radio" /><img src="images/TO-202AB" height="50" onclick="document.getElementById('to202radio').checked=true;" alt="TO-202AB" title="TO-202AB" /></td>
-<td valign="middle"><input type="radio" name="pkg" value="SIP" id="to3radio" /><img src="images/TO-3.jpg" height=50 onclick="document.getElementById('to3radio').checked=true;" alt="TO-3" title="TO-3" /></td>
-<td valign="middle"><input type="radio" name="pkg" value="SOT-23" id="SOT23radio" /><img src="images/SOT-23.jpg" height="50" onclick="document.getElementById('SOT23radio').checked=true;" alt="SOT-23" title="SOT-23" /></td>
+<td class="border"><input type="radio" name="pkg" value="TO-92" id="to92radio" checked/><img src="images/TO-92.jpg" height=50  onclick="document.getElementById('to92radio').checked=true;" alt="TO-92" title="TO-92" /></td>
+<td class="border"><input type="radio" name="pkg" value="TO-220" id="to220radio" /><img src="images/TO-220" height="50" onclick="document.getElementById('to220radio').checked=true;" alt="TO-220" title="TO-220" /></td>
+<td class="border"><input type="radio" name="pkg" value="TO-202" id="to202radio" /><img src="images/TO-202AB" height="50" onclick="document.getElementById('to202radio').checked=true;" alt="TO-202AB" title="TO-202AB" /></td>
+<td class="border"><input type="radio" name="pkg" value="SIP" id="to3radio" /><img src="images/TO-3.jpg" height=50 onclick="document.getElementById('to3radio').checked=true;" alt="TO-3" title="TO-3" /></td>
+<td class="border"><input type="radio" name="pkg" value="SOT-23" id="SOT23radio" /><img src="images/SOT-23.jpg" height="50" onclick="document.getElementById('SOT23radio').checked=true;" alt="SOT-23" title="SOT-23" /></td>
 </tr></table></td></tr>
-<tr><td align="right">Pins:</td><td><input type="text" name="pins" onkeypress="return onlyNumbers()" size=2 value="3" /></td></tr>
-<tr><td align="right">Description:</td><td><textarea name="descript" ></textarea></td></tr>
-<tr><td align="right">Datasheet URL:</td><td><input type="text" name="dataURL"</td></tr>
-<tr><td></td><td align="center "><input type="submit" value="submit"></td></tr>
+<tr><td class="labels">Pins:</td><td><input type="text" name="pins" onkeypress="return onlyNumbers()" size=2 value="3" /></td></tr>
+<tr><td class="labels">Description:</td><td><textarea name="descript" ></textarea></td></tr>
+<tr><td class="labels">Datasheet URL:</td><td><input type="text" name="dataURL"</td></tr>
+<tr><td></td><td class="button"><input type="submit" value="submit"></td></tr>
 </table><input type="hidden" name="com" value="new"></form>
 <? 
  //end of write
@@ -310,20 +315,20 @@ document.sender.submit();
 //-->
 </script>
 <form action="javascript:sendFrm()" name="reciever">Add a Part: <font color="red">DO NOT USE YET</font><table border=0>
-<tr><td align="right">Quantity:</td><td><input type="text" id="qty" size=2 onkeypress="return onlyNumbers()" /></td></tr>
-<tr><td align="right">ID#:</td><td><input type="text" id="num" /></td></tr>
-<tr><td align="right">Type:</td><td><select id="type"><option value="NPN">NPN<option value="PNP">PNP<option value="SCR">SCR<option value="FET">FET<option value="NMOSFET">N-type MOSFET<option value="PMOSFET">P-type MOSFET</select></td></tr>
-<tr><td align="right">Package:</td><td>
+<tr><td class="labels">Quantity:</td><td><input type="text" id="qty" size=2 onkeypress="return onlyNumbers()" /></td></tr>
+<tr><td class="labels">ID#:</td><td><input type="text" id="num" /></td></tr>
+<tr><td class="labels">Type:</td><td><select id="type"><option value="NPN">NPN<option value="PNP">PNP<option value="SCR">SCR<option value="FET">FET<option value="NMOSFET">N-type MOSFET<option value="PMOSFET">P-type MOSFET</select></td></tr>
+<tr><td class="labels">Package:</td><td>
 <table border=1><tr>
-<td valign="middle"><input type="radio" name="pkg" value="DO-35" id="do35radio" checked/><img src="images/DO-35.jpg" height=50  onclick="document.getElementById('do35radio').checked=true;" alt="DO-35" title="DO-35" /></td>
-<td valign="middle"><input type="radio" name="pkg" value="TO-220" id="to220radio" /><img src="images/TO-220" height="50" onclick="document.getElementById('to220radio').checked=true;" alt="TO-220" title="TO-220" /></td>
-<td valign="middle"><input type="radio" name="pkg" value="TO-202" id="to202radio" /><img src="images/TO-202AB" height="50" onclick="document.getElementById('to202radio').checked=true;" alt="TO-202AB" title="TO-202AB" /></td>
-<td valign="middle"><input type="radio" name="pkg" value="SIP" id="to3radio" /><img src="images/TO-3.jpg" height=50 onclick="document.getElementById('to3radio').checked=true;" alt="TO-3" title="TO-3" /></td>
-<td valign="middle"><input type="radio" name="pkg" value="SOT-23" id="SOT23radio" /><img src="images/SOT-23.jpg" height="50" onclick="document.getElementById('SOT23radio').checked=true;" alt="SOT-23" title="SOT-23" /></td>
+<td class="border"><input type="radio" name="pkg" value="DO-35" id="do35radio" checked/><img src="images/DO-35.jpg" height=50  onclick="document.getElementById('do35radio').checked=true;" alt="DO-35" title="DO-35" /></td>
+<td class="border"><input type="radio" name="pkg" value="TO-220" id="to220radio" /><img src="images/TO-220" height="50" onclick="document.getElementById('to220radio').checked=true;" alt="TO-220" title="TO-220" /></td>
+<td class="border"><input type="radio" name="pkg" value="TO-202" id="to202radio" /><img src="images/TO-202AB" height="50" onclick="document.getElementById('to202radio').checked=true;" alt="TO-202AB" title="TO-202AB" /></td>
+<td class="border"><input type="radio" name="pkg" value="SIP" id="to3radio" /><img src="images/TO-3.jpg" height=50 onclick="document.getElementById('to3radio').checked=true;" alt="TO-3" title="TO-3" /></td>
+<td class="border"><input type="radio" name="pkg" value="SOT-23" id="SOT23radio" /><img src="images/SOT-23.jpg" height="50" onclick="document.getElementById('SOT23radio').checked=true;" alt="SOT-23" title="SOT-23" /></td>
 </tr></table></td></tr>
-<tr><td align="right">Description:</td><td><textarea id="descript" ></textarea></td></tr>
-<tr><td align="right">Datasheet URL:</td><td><input type="text" id="dataURL"</td></tr>
-<tr><td></td><td align="right"><input type="submit" value="submit"></td></tr>
+<tr><td class="labels">Description:</td><td><textarea id="descript" ></textarea></td></tr>
+<tr><td class="labels">Datasheet URL:</td><td><input type="text" id="dataURL"</td></tr>
+<tr><td></td><td class="button"><input type="submit" value="submit"></td></tr>
 </table></form>
 <form name="sender" action="" method="post">
 <input type="hidden" id="val" name="val">

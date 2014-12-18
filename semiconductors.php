@@ -18,7 +18,7 @@ Select a Category:<ul>
 <li><a href="/semiconductors.php/transistors">Transistors, SCR's</a> (3-4 layers)</li>
 <li><a href="/semiconductors.php/diodes">Diodes</a> (two layers)</li>
 </ul>
-<? }
+<?php }
 elseif($cat[1]=="ICs"){
 startsql();
 if(isset($_POST['com'])){ //check for Add/Update/Remove
@@ -239,7 +239,7 @@ if(isset($_POST['com'])){ //check for Add/Update/Remove
 <tr><td class="labels">Datasheet URL:</td><td><input type="text" name="dataURL"</td></tr>
 <tr><td></td><td class="button"><input type="submit" value="submit"></td></tr>
 </table><input type="hidden" name="com" value="new"></form>
-<? 
+<?php 
  //end of write
 }//end of transistors ***************************************************************
 
@@ -348,7 +348,7 @@ Select a Category:<ul>
 <li><a href="semiconductors.php/transistors">Transistors, SCR's</a> (3-4 layers)</li>
 <li><a href="semiconductors.php/diodes">Diodes</a> (two layers)</li>
 </ul>
-<? }
+<?php }
 //print_r($cat); //for debug purposes
 //echo $sql;
 ?></body></html>

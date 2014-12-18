@@ -1,4 +1,5 @@
-<? require "config.php";
+<?php 
+require "config.php";
 require "./FPDF/fpdf.php";
 class PDF extends FPDF
 {
@@ -250,7 +251,7 @@ require "header.php";
 <p><input type="button" value="Create Report" onclick="return checkfrm()"></p></form>
 <p><img src="./FPDF/tutorial/logo_pb.png" /></p>
 </body></html>
-<? } // end of input form
+<?php } // end of input form
 elseif($_POST['format']=='pdf' || $_POST['format']=='pdfd'){
 startsql();
 $pdf=new PDF('P','mm','Letter');

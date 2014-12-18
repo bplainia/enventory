@@ -19,11 +19,12 @@ if(!isset($_GET['cmd']))
     echo "</select></form></div>";
     if(isset($_POST['box']) && is_numeric($_POST['box']))
     {
-        echo "\n<div>\n\t<table border=\"1\">\n\t\t<tr>";
+        
         $smt = $db->prepare("SELECT * FROM locList WHERE name=:box LIMIT 1;");
         $smt->bindParam(":box",$_POST['box']);
         $smt->execute();
         $result = $smt->fetch(PDO::FETCH_ASSOC);
+        $style=json_decode($result['style']);
         $colspan = explode(';',$result['colspan']);
         foreach($colspan as $col) $colspans[] = explode(',',$col);
         $result = explode(',',$result['valid']);
@@ -33,6 +34,10 @@ if(!isset($_GET['cmd']))
         $curCol = 0;
         $curRow = 0;
         $colMerge = 1;
+        //Begin Table
+        echo "\n<div>\n\t<table border=\"1\" ";
+        if(isset($style->bordercolor)) echo " color=\"".$style->bordercolor."\" ";
+        echo ">\n\t\t<tr>";
         for($i=0;$i < count($result);$i++)
         {
             $location = str_split(str_pad($result[$i],$length),$length/2);
@@ -55,7 +60,7 @@ switch($command)
     case "select":
         if(!is_numeric($data)) exit("Bad Request"); // Validation
         $sql="SELECT valid FROM locList WHERE name=$data;";
-        $result = $db->execute($sql);
+        $result = $db->query($sql);
         $result = $result->fetch(PDO::FETCH_ASSOC);
         $result = explode(',',$result['valid']);
         $longest = $result[count($result)-1];
@@ -70,4 +75,3 @@ switch($command)
                 echo "<option value=\"$location\">".str_pad($location,4)."</option>\n  ";
             }
 }
-?>

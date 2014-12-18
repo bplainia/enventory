@@ -1,4 +1,4 @@
-<?
+<?php
 if(isset($_SERVER['PATH_INFO'])){
 $cat=$_SERVER['PATH_INFO'];
 $cat=explode('/',$cat);
@@ -16,7 +16,7 @@ Select a Category:<ul>
 <li><a href="passives.php/resistors">Resistors</a></li>
 <li><a href="passives.php/inductors">Inductors</a></li>
 </ul>
-<? }
+<?php }
 elseif($cat[1]=="capacitors"){ /////////////////////////cap////////////////////////cap////////////////////////////////cap/////// 
 
 
@@ -31,11 +31,11 @@ function calcValues($value,$code) {
             }
             $raw = substr($value,0,2);
             if(!isset($_GET['micronly'])){
-                if($power < -10) $output=$raw*pow(10,$power+12)."pF";
-                elseif($power < -7) $output=$raw*pow(10,$power+9)."nF";
+                if($power < -10) $output=$raw*pow(10,$power+12)." pF";
+                elseif($power < -7) $output=$raw*pow(10,$power+9)." nF";
                 else $output = $raw*pow(10,$power+6)."&mu;F";
             }
-            else $output = number_format($raw*pow(10,$power+6),6)."&mu;F";
+            else $output = number_format($raw*pow(10,$power+6),6)." &mu;F";
             return array($output,$raw*pow(10,$power));
         }else return array("error",null);
         //SetText("tolerance", tolval[obj.tolerancecode.selectedIndex]);
@@ -54,7 +54,7 @@ function calcValues($value,$code) {
         else {
             $unit = "&mu;F";
         }
-        return array($value.$unit,$rawValue);
+        return array($value." ".$unit,$rawValue);
     }
 }
 
@@ -92,10 +92,38 @@ if(isset($_POST['com'])){ //check for Add/Update/Remove
 <h1>Capacitors</h1>
 <a href="passives.php">Back to passives home</a>
 <p><select onchange="goto('passives.php/capacitors'+this.value,false)"><option value="" <?if(!isset($cat[2])) echo "selected"; ?>>All<option value="/radial" <?if(@$cat[2]=='radial') echo "selected"; ?>>radial<option value="/axial" <?if(@$cat[2]=='axial') echo "selected"; ?>>axial<option value="/ceramic" <?if(@$cat[2]=='ceramic') echo "selected"; ?>>ceramic</select></p>
-<table border=1 class="sortable"><thead><tr><th>Qty</th><th>Value</th><th>Rating</th><th>Type</th><th>Color</th><th>Manufacturer</th><th>Comment</th><th class="sorttable_nosort">AUR</th></tr></thead><tbody>
+<div id="pager" class="pager">
+	<form>
+		<input type="button" value="&lt;&lt;" class="first" />
+		<input type="button" value="&lt;" class="prev" />
+		<input type="text" class="pagedisplay" readonly/>
+		<input type="button" value="&gt;" class="next" />
+		<input type="button" value="&gt;&gt;" class="last" />
+		<select class="pagesize">
+			<option selected="selected"  value="10">10</option>
+			<option value="20">20</option>
+			<option value="30">30</option>
+			<option value="40">40</option>
+		</select>
+	</form>
+</div></div>
+<table border=1 class="tablesorter" id="myTable">
+<thead>
+	<tr>
+		<th>Qty</th>
+		<th class="sorter-metric" data-metric-name="F|Farad">Value</th>
+		<th>Rating</th>
+		<th>Type</th>
+		<th>Color</th>
+		<th class="sorter-text">Manufacturer</th>
+		<th class="sorter-false">Comment</th>
+		<th class="sorter-false">AUR</th>
+	</tr>
+</thead>
+<tbody>
 <?
   if(isset($cat[2])) $sql = "select * from passives_caps where type='".$cat[2]."' and ((user='".$user."') or (user is null))  order by value;";
-  else $sql="select * from passives_caps where (user='".$user."') or (user is null) order by value;";
+  else $sql="select * from passives_caps where (user='".$user."') or (user is null) order by value, voltage;";
   $result = $db->query($sql);
   $quantity=0;
   foreach($result->fetchAll(PDO::FETCH_ASSOC) as $row)
@@ -104,7 +132,7 @@ if(isset($_POST['com'])){ //check for Add/Update/Remove
     echo "<tr>";
     echo "<td>".$row['quantity']."</td>";
     $quantity += $row['quantity'];
-    echo "<td sorttable_customkey=\"".number_format($valraw,13)."\">".$value."</td>";
+    echo "<td>".$value."</td>";
     if($row['voltage']!=0) echo "<td>".$row['voltage']."V</td>";
     else echo "<td>-</td>";
     echo "<td>".$row['type']."</td>";
@@ -137,7 +165,7 @@ return false;
 <tr><td align="right">Manufacturer:</td><td><input tabindex=9 type="text" maxlength=15 name="manu"/></td></tr>
 <tr><td><input type="hidden" name="com" value="new" /></td><td><input tabindex=10 type="submit" value="Add Capacitor" /></td></tr>
 </table></form>
-<? }
+<?php }
 //////////////////////////////////////////////res/////////////////////////////////////////res///////////////////////////////
 elseif($cat[1]=="resistors"){ 
 function color2Num($color,$multi){ //color is color, returns string
@@ -196,12 +224,14 @@ function color2Num($color,$multi){ //color is color, returns string
         return "9";
   }
 } //end color2Num
-function getResType($type){ 
+function getResType($type,$size){ 
     switch($type){ 
         case "carbon": 
             return "Carbon Film"; 
         case "wire": return "Wire Wound"; 
-        case "smd": return "SMD";
+        case "smd": 
+          if($size==NULL) $size = "NULL!";
+          return "SMD ($size)";
         default:
             return $type;
     }
@@ -211,8 +241,8 @@ if(isset($_POST['com'])){ // Parse command if it is set
     $command=stripslashes($_POST['com']); // Fetch the command; do some anti inject stuff
     if($command=="new"){
         $stmt = $db->prepare("INSERT INTO passives_res (type,color1,color2,multi,tollerance,wattage,quantity,used,extra) VALUES (?,?,?,?,?,?,?,?,?);"); // generic insert statement for resistors
-        $stmt->execute(array($_POST['type'],$_POST['col1'],$_POST['col2'],$_POST['multi'],$_POST['tol'],$_POST['watt'],$_POST['qty'],$_POST['used'],"{smdsize:".$_POST['extra1size']."}")); // Will awlays execute
-        if($_POST['sub']=="Add Resistors") $stmt->execute(array($_POST['type2'],$_POST['col12'],$_POST['col22'],$_POST['multi2'],$_POST['tol2'],$_POST['watt2'],$_POST['qty2'],$_POST['used2'],"{smdsize:".$_POST['extra2size']."}")); 
+        $stmt->execute(array($_POST['type'],$_POST['col1'],$_POST['col2'],$_POST['multi'],$_POST['tol'],$_POST['watt'],$_POST['qty'],$_POST['used'],($_POST['type']=="smd" ? "{\"smdsize\":\"".$_POST['extra1size']."\"}" : "{}"))); // Will awlays execute
+        if($_POST['sub']=="Add Resistors") $stmt->execute(array($_POST['type2'],$_POST['col12'],$_POST['col22'],$_POST['multi2'],$_POST['tol2'],$_POST['watt2'],$_POST['qty2'],$_POST['used2'], ($_POST['type2']=="smd" ? "{\"smdsize\" : \"".$_POST['extra2size']."\"}"  : "{}"))); 
     }
 }
 ?>
@@ -221,23 +251,25 @@ if(isset($_POST['com'])){ // Parse command if it is set
 <p><select onchange="goto('./passives.php/resistors'+this.value,false)"><option value="" <?if(!isset($cat[2])) echo "selected"; ?>>All<option value="/carbon" <?if(@$cat[2]=='carbon') echo "selected"; ?>>Carbon Film<option value="/wire" <?if(@$cat[2]=='wire') echo "selected"; ?>>Wire Wound<option value="/network" <?if(@$cat[2]=='nework') echo "selected"; ?>>Resistor Network<option value="smd" <?php if(@$cat[2]=="/smd") echo "selected";?>>SMD</select></p>
 <?
   startsql();
-  if(isset($cat[2])) $stmt = $db->query("select * from passives_res where (type='".mysql_real_escape_string($cat[2])."') and ((user='".$user."') or (user is null));");
-  else $stmt = $db->query("select * from passives_res where (user='".$user."') or (user is null);");
+  if(isset($cat[2])) $stmt = $db->query("select * from passives_res where (type='".mysql_real_escape_string($cat[2])."') and ((user='".$user."') or (user is null)) ORDER BY multi,color1,color2,wattage;");
+  else $stmt = $db->query("select * from passives_res where (user='".$user."') or (user is null) ORDER BY multi,color1,color2,wattage;");
   $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
   if(count($result)>0){
-      echo "<table border=1 class=\"sortable\"><tr><!--th>Entry</th--><th>Qty</th><th>Value</th><th>Type</th><th>Toll.</th><th>Watts</th><th class=\"sorttable_nosort\">AUR</th></tr>";
+      echo "<table border=1 class=\"tablesorter\" id=\"myTable\"><tr><!--th>Entry</th--><th>Qty</th><th>Value</th><th>Type</th><th>Toll.</th><th>Watts</th><th class=\"{sorter: false}\">AUR</th></tr>";
       foreach($result as $row)
       {
         $multi=color2Num($row['multi'],2);
         $resval=color2Num($row['color1'],0).color2Num($row['multi'],1).color2Num($row['color2'],0).$multi[0];
         $resvalraw=(color2Num($row['color1'],0).color2Num($row['color2'],0))*$multi[1];
-        $type=getResType($row['type']); 
+        $extras = $row['extra'];
+        $extras = json_decode($extras);	
+        $type=getResType($row['type'],@$extras->smdsize); 
         echo "<tr>";
         $unused=$row['quantity']-$row['used'];
         if($unused<0)$unused=0;
         //echo "<td>".$row['ID']."</td>";
         echo "<td>".$unused."/".$row['quantity']."</td>";
-        echo "<td sorttable_customkey=\"".$resvalraw."\"><a title=\"".$row['color1']."-".$row['color2']."-".$row['multi']."\"><font color=\"black\" decoration=\"none\">".$resval."&Omega;</font></a></td>";
+        echo "<td customkey=\"".$resvalraw."\"><a title=\"".$row['color1']."-".$row['color2']."-".$row['multi']."\"><font color=\"black\" decoration=\"none\">".$resval."&Omega;</font></a></td>";
         echo "<td>".$type."</td>";
         echo "<td>&plusmn;".$row['tollerance']."%</td>";
         echo "<td>".$row['wattage']."W</td>";
@@ -265,12 +297,12 @@ available/all</small>";
 <!--tr><td></td><td></td><td column=3><input type="hidden" name="ignore" value="true" tabindex=10 /><input type="checkbox" value="false" name="ignore" id="ignorer" checked="true" />Ignore</td><td></td><tr-->
 <tr><td align="right">Quantity:</td><td><input tabindex=1 type="text" size=2 name="qty" /></td><td align="right">Quantity:</td><td><input type="text" size=2 name="qty2" onclick="document.getElementById('ignorer').checked='false';" tabindex=11 /></td></tr>
 <tr><td align="right">Used:</td><td><input tabindex=2 type="text" size=2 value="0" name="used" /></td><td align="right">Used:</td><td><input tabindex=12 type="text" size=2 value="0" name="used2" /></td></tr>
-<tr><td align="right">Type:</td><td><select tabindex=3 name="type" onchange="document.getElementById('smdize1').style.display = (this.value=='smd')?'inline':'hidden'"><option value="carbon" selected>Carbon Film</option><option value="wire">Wire-wound</option><option value="network">Resistor Network</option><option value="smd">SMD</option></select></td><td align="right">Type:</td><td><select tabindex=13 name="type2"><option value="carbon" selected>Carbon Film</option><option value="wire">Wire-wound</option><option value="network">Resistor Network</option><option value="smd">SMD</option></select></td><tr>
-<tr id="smdize1" style="display:hidden;"><td align="right">Size of SMD:</td><td><input type="textbox" size="2" name="extra1size"></td><td align="right">Size of SMD:</td><td><input type="textbox" size="2" name="extra2size"></td></tr>
+<tr><td align="right">Type:</td><td><select tabindex=3 name="type" onchange="document.getElementById('smdize1').style.display = (this.value=='smd')?'':'none'"><option value="carbon" selected>Carbon Film</option><option value="wire">Wire-wound</option><option value="network">Resistor Network</option><option value="smd">SMD</option></select></td><td align="right">Type:</td><td><select tabindex=13 name="type2"><option value="carbon" selected>Carbon Film</option><option value="wire">Wire-wound</option><option value="network">Resistor Network</option><option value="smd">SMD</option></select></td><tr>
+<tr id="smdize1" style="display:none;"><td align="right">Size of SMD:</td><td><input type="textbox" size="2" name="extra1size"></td><td align="right">Size of SMD:</td><td><input type="textbox" size="2" name="extra2size"></td></tr>
 <tr><td align="right">Band 1:</td><td><select tabindex=4 name="col1"><option value="brown">1 Brown</option><option value="red">2 Red</option><option value="orange">3 Orange</option><option value="yellow">4 yellow</option><option value="green">5 green</option><option value="blue">6 blue</option><option value="purple">7 purple</option><option value="grey">8 grey</option><option value="white">9 white</option></select></td><td align="right">Band 1:</td><td><select tabindex=14 name="col12"><option value="brown">1 Brown</option><option value="red">2 Red</option><option value="orange">3 Orange</option><option value="yellow">4 yellow</option><option value="green">5 green</option><option value="blue">6 blue</option><option value="purple">7 purple</option><option value="grey">8 grey</option><option value="white">9 white</option></select></td></tr>
 <tr><td align="right">Band 2:</td><td><select tabindex=5 name="col2"><option value="black">0 black</option><option value="brown">1 brown</option><option value="red">2 red</option><option value="orange">3 orange</option><option value="yellow">4 yellow</option><option value="green">5 green</option><option value="blue">6 blue</option><option value="purple">7 purple</option><option value="grey">8 grey</option><option value="white">9 white</option></select></td><td align="right">Band 2:</td><td><select tabindex=15 name="col22"><option value="black">0 black</option><option value="brown">1 brown</option><option value="red">2 red</option><option value="orange">3 orange</option><option value="yellow">4 yellow</option><option value="green">5 green</option><option value="blue">6 blue</option><option value="purple">7 purple</option><option value="grey">8 grey</option><option value="white">9 white</option></select></td></tr>
 <tr><td align="right">Multiplier:</td><td><select tabindex=6 name="multi"><option value="silver">none .12</option><option value="gold">gold 1.2</option><option value="black" selected="selected">black 12</option><option value="brown">brown 120</option><option value="red">red 1.2K</option><option value="orange">orange 12K</option><option value="yellow">yellow 120K</option><option value="green">green 1.2M</option><option value="blue">blue 12M</option><option value="purple">purple 120M</option></select></td><td align="right">Multiplier:</td><td><select tabindex=16 name="multi2"><option value="silver">none .12</option><option value="gold">gold 1.2</option><option value="black" selected="selected">black 12</option><option value="brown">brown 120</option><option value="red">red 1.2K</option><option value="orange">orange 12K</option><option value="yellow">yellow 120K</option><option value="green">green 1.2M</option><option value="blue">blue 12M</option><option value="purple">purple 120M</option></select></td></tr>
-<tr><td align="right">Tollerance:</td><td><select tabindex=7 name="tol"><option value=20>20&plusmn;%<option value=10>10&plusmn;%<option value=5>5&plusmn;%</select></td><td align="right">Tollerance:</td><td><select tabindex=17 name="tol2"><option value=20>20&plusmn;%<option value=10>10&plusmn;%<option value=5>5&plusmn;%</select></td></tr>
+<tr><td align="right">Tollerance:</td><td><select tabindex=7 name="tol"><option value=20>20&plusmn;%<option value=10>10&plusmn;%<option value=5>5&plusmn;%<option value=2>2&plusmn;%<option value=1>1&plusmn;%<option value=0.5>.5&plusmn;%</select></td><td align="right">Tollerance:</td><td><select tabindex=17 name="tol2"><option value=20>20&plusmn;%<option value=10>10&plusmn;%<option value=5>5&plusmn;%</select></td></tr>
 <tr><td align="right">Wattage:</td><td><input tabindex=8 type="text" size=2 name="watt" value="0.5" /><small>(In Decimal)</small></td><td align="right">Wattage:</td><td><input tabindex=18 type="text" size=2 name="watt2" value="0.5" /><small>(In Decimal)</small></td></tr>
 <input type="hidden" name="com" value="new" />
 <tr><td></td><td><input tabindex=9 type="submit" title="Add this resistor ONLY" name="sub" value="Add Resistor" /></td><td></td><td><input tabindex=19 type="submit" name="sub" title="Add BOTH resistors" value="Add Resistors" /><input type="checkbox" name="gomain" value="true" tabindex=20/>This is last resistor (go to passives)</td></tr>
@@ -427,7 +459,7 @@ if(isset($_POST['com'])){ //check for Add/Update/Remove
 <h1>Inductors</h1>
 <a href="passives.php">Back to passives home</a>
 <p><select onchange="goto('passives.php/inductors'+this.value,false)"><option value="" <?if(!isset($cat[2])) echo "selected"; ?>>All<option value="/radial" <?if(@$cat[2]=='radial') echo "selected"; ?>>radial<option value="/axial" <?if(@$cat[2]=='axial') echo "selected"; ?>>axial<option value="/ceramic" <?if(@$cat[2]=='ceramic') echo "selected"; ?>>ceramic</select></p>
-<table border=1 class="sortable"><tr><th>Qty</th><th>Value</th><th>Type</th><th>Dimentions</th><th>Manufacturer</th><th>Comment</th><th class="sorttable_nosort">AUR</th></tr>
+<table border=1 class="tablesorter" id=\"myTable\"><tr><th>Qty</th><th>Value</th><th>Type</th><th>Dimentions</th><th>Manufacturer</th><th>Comment</th><th class="{sorter: false}">AUR</th></tr>
 <?
   if(isset($cat[2])) $sql = "select * from passives_ind where type='".$cat[2]."' and ((user='".$user."') or (user is null))  order by value;";
   else $sql="select * from passives_ind where (user='".$user."') or (user is null) order by value;";
@@ -437,7 +469,7 @@ if(isset($_POST['com'])){ //check for Add/Update/Remove
     else { $value=$row['value']."&mu;F"; $valraw=$row['value']*pow(10,-6);}
     echo "<tr>";
     echo "<td>".$row['quantity']."</td>";
-    echo "<td sorttable_customkey=\"".number_format($valraw,13)."\">".$value."</td>";
+    echo "<td customkey=\"".number_format($valraw,13)."\">".$value."</td>";
     echo "<td>".$row['type']."</td>";
     echo "<td>".$row['length']."x".$row['width']."x".$row['height']."r".$row['radius']."</td>";
     echo "<td>".$row['Manufacturer']."</td>";
@@ -476,7 +508,7 @@ return false;
 <tr><td align="right">Man. #:</td><td><input tabindex=11 type="text" name="manNum"/></td></tr>
 <tr><td><input type="hidden" name="com" value="new" /></td><td><input tabindex=12 type="submit" value="Add Inductor" /></td></tr>
 </table></form>
-<? 
+<?php 
 }
 else{ //fallback if is not one of the above values ?>
 <h1>Pasives</h1>
@@ -485,6 +517,6 @@ Select a Category:<ul>
 <li><a href="passives.php/resistors">Resistors</a></li>
 <li><a href="passives.php/inductors">Inductors</a></li>
 </ul>
-<? }
+<?php }
 //print_r($cat); //for debug purposes
 ?></body></html><!--×-->

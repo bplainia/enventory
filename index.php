@@ -1,4 +1,4 @@
-<?
+<?php
 include "config.php";
 include "header.php";
 echo "<p>Welcome, ".$user.".</p>";
@@ -9,10 +9,13 @@ echo "<p>Welcome, ".$user.".</p>";
 <li><a href="electromech.php">Electromechanical</a></li>
 <li><a href="interconnects.php">Interconnects</a></li>
 <li><a href="kits.php">Kits, Boards</a></li>
+<li><a href="locations.php">Locations</a></li>
 <li><a href="reports.php">Reports</a></li>
 </ul>
-<?/* if($user=="benjamin") echo "Access: Full";
-else echo "Access: Read-Only";*/
-
+<?php 
+/* 
+if($user=="benjamin") echo "Access: Full";
+else echo "Access: Read-Only";
+*/
 ?>
 </body></html>

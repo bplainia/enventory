@@ -1,4 +1,4 @@
-<?
+<?php
 @session_start();
 if((!isset($_SESSION['user']) && !isset($_POST['user'])) || (isset($_GET['switch'])))
 {
@@ -29,4 +29,3 @@ function startsql(){
 //$user=$_SERVER['PHP_AUTH_USER'];
 //$user=(isset($_SERVER['PHP_AUTH_USER']))?$name:"Visitor";
 //$users=array("benjamin","michaelm","daniel");
-?>

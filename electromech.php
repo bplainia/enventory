@@ -1,4 +1,5 @@
-<? include "config.php";
+<?php 
+include "config.php";
 if(isset($_SERVER['PATH_INFO'])){
 $cat=$_SERVER['PATH_INFO'];
 $cat=explode('/',$cat);
@@ -14,15 +15,15 @@ if(!isset($cat)){ ?>
 <li>Switches</li>
 <li>Nuts and Bolts</li>
 </ul>
-<?
+<?php
 }
 
 
 elseif($cat[1]=="motors"){ ?>
 <h1>Motors</h1>
 <p><a href="/enventory/electromech.php">Back to Electro-Mechanical Index</a></p>
-<p><select onchange="goto('/enventory/electromech.php/motors'+this.value,false)"><option value="">All</option><option value="/Direct" <? if(@$cat[2]=="Direct") echo "selected"; ?>>Direct</option><option value="/Gearhead" <? if(@$cat[2]=="Gearhead")echo "selected"; ?>>Gearhead</option><option value="/Servo" <? if(@$cat[2]=="Servo") echo "selected"; ?>>Servos</option><option value="/Bi-Stepper" <? if(@$cat[2]=="Bi-Stepper") echo "selected"; ?>>Bipolar Stepper</option><option value="/Uni-Stepper" <? if(@$cat[2]=="Uni-Stepper") echo "selected"; ?>>Unipole Stepper</option><option value="/Vibrating" <? if(@$cat[2]=="Vibrating") echo "selected"; ?>>Vibrators</option></select>
-<?
+<p><select onchange="goto('/enventory/electromech.php/motors'+this.value,false)"><option value="">All</option><option value="/Direct" <?php if(@$cat[2]=="Direct") echo "selected"; ?>>Direct</option><option value="/Gearhead" <?php if(@$cat[2]=="Gearhead")echo "selected"; ?>>Gearhead</option><option value="/Servo" <?php if(@$cat[2]=="Servo") echo "selected"; ?>>Servos</option><option value="/Bi-Stepper" <?php if(@$cat[2]=="Bi-Stepper") echo "selected"; ?>>Bipolar Stepper</option><option value="/Uni-Stepper" <?php if(@$cat[2]=="Uni-Stepper") echo "selected"; ?>>Unipole Stepper</option><option value="/Vibrating" <?php if(@$cat[2]=="Vibrating") echo "selected"; ?>>Vibrators</option></select>
+<?php
 startsql();
 if(isset($_POST['com'])){ //check for Add/Update/Remove
   if($_POST['com']=="add"){
@@ -123,14 +124,14 @@ function insertString(stringToInsert) {
 <tr><td align="right">Quantity:</td><td><input tabindex=1 type="text" name="quantity" size=2 onkeypress="return onlyNumbers()" /></td></tr>
 <tr><td align="right">Used:</td><td><input tabindex=2 type="text" name="used" size=2 onkeypress="return onlyNumbers()" value="0" /></td></tr>
 <tr><td align="right">Name:</td><td><input type="text" maxlength=50 tabindex=3 name="name"></td></tr>
-<tr><td align="right">Type:</td><td><select tabindex=4 name="type"><option value="" disabled selected>Please Select One</option><option value="Direct" <? if(@$cat[2]=="Direct") echo "selected"; ?>>Direct</option><option value="Gearhead" <? if(@$cat[2]=="Gearhead")echo "selected"; ?>>Gearhead</option><option value="Servo" <? if(@$cat[2]=="Servo") echo "selected"; ?>>Servos</option><option value="Bi-Stepper" <? if(@$cat[2]=="Bi-Stepper") echo "selected"; ?>>Bipolar Stepper</option><option value="Uni-Stepper" <? if(@$cat[2]=="Uni-Stepper") echo "selected"; ?>>Unipole Stepper</option><option value="Vibrating" <? if(@$cat[2]=="Vibrating") echo "selected"; ?>>Vibrators</option></select></td></tr>
+<tr><td align="right">Type:</td><td><select tabindex=4 name="type"><option value="" disabled selected>Please Select One</option><option value="Direct" <?php if(@$cat[2]=="Direct") echo "selected"; ?>>Direct</option><option value="Gearhead" <?php if(@$cat[2]=="Gearhead")echo "selected"; ?>>Gearhead</option><option value="Servo" <?php if(@$cat[2]=="Servo") echo "selected"; ?>>Servos</option><option value="Bi-Stepper" <?php if(@$cat[2]=="Bi-Stepper") echo "selected"; ?>>Bipolar Stepper</option><option value="Uni-Stepper" <?php if(@$cat[2]=="Uni-Stepper") echo "selected"; ?>>Unipole Stepper</option><option value="Vibrating" <?php if(@$cat[2]=="Vibrating") echo "selected"; ?>>Vibrators</option></select></td></tr>
 <tr><td align="right">Amperage:</td><td><input tabindex=5 type="text" name="amp" id="amp" size=2 onkeypress="return onlyNumbers()" onfocus="if(this.value=='null'){ this.value=''; document.getElementById('ampnull').checked=false; }" /> Ampers <input type="checkbox" tabindex=6 id="ampnull" onclick="if(this.checked==true) document.getElementById('amp').value='null'; else { document.getElementById('amp').value=''; document.getElementById('amp').focus() }" /><lable for="ampnull">N/A</label></td></tr>
 <tr><td align="right">Voltage:</td><td><input tabindex=7 type="text" name="volt" size=2 onkeypress="return onlyNumbers()" /> Volts</td></tr>
 <tr><td align="right">Description:</td><td><textarea tabindex=8 name="description" id="desc"></textarea> <select onchange="concatDesc(this.value); this.options[0].selected=true;"><option value="" disabled selected>Add Character</option><option value="&deg;">Degree</option><option value="&reg;">Registered</option><option value="&trade;">Trademark</option><option value="&copy;">Copyright</option></select></td></tr>
 <tr><td align="right">Manufacturer:</td><td><input tabindex=9 type="text" maxlength=50 name="manu"/></td></tr>
 <tr><td align="right">Datasheet:</td><td><input tabindex=10 type="text" name="data"/></td></tr>
 <tr><td><input type="hidden" name="com" value="new" /></td><td><input tabindex=11 type="submit" value="Add Part" /></td></tr>
-</table></form><?
+</table></form><?php
 
 
 }

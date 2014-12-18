@@ -27,7 +27,7 @@ td.button{
 	text-align:center;
 }
 
-/* Table sorter stuff */
+/* Table sorter stuff 
 table.tablesorter {
 	font-size: 12px;
 	background-color: #4D4D4D;
@@ -50,7 +50,7 @@ table.tablesorter .odd {
 	background-color: #6E6E6E;
 }
 table.tablesorter .header {
-	background-image: url(/images/bg.png);
+	background-image: url("/images/bg.png");
 	background-repeat: no-repeat;
 	border-left: 1px solid #FFF;
 	border-right: 1px solid #000;
@@ -60,10 +60,10 @@ table.tablesorter .header {
 	height: auto;
 }
 table.tablesorter .headerSortUp {
-	background-image: url(/images/asc.png);
+	background-image: url("/images/asc.png");
 	background-repeat: no-repeat;
 }
 table.tablesorter .headerSortDown {
-	background-image: url(/images/desc.png);
+	background-image: url("/images/desc.png");
 	background-repeat: no-repeat;
-}
+}*/

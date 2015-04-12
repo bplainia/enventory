@@ -1,4 +1,0 @@
-AuthType basic
-AuthName "eNVENTORY Login"
-AuthUserFile /var/www/.passwords/enventory
-Require valid-user

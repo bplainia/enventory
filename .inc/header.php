@@ -13,19 +13,19 @@
 //                                                              // go through variables to make sure they exist
 if(!isset($titlepng))
 {
-  $titlepng="/images/enventory.png";                                    //custom title picture
+    $titlepng="/images/enventory.png";                                    //custom title picture
 }
 if(!isset($user))
 {
-  $user = "Visitor";
+    $user = "Visitor";
 }
 if(!isset($addscript))
 {
-  $addscript="";                                                // no script
+    $addscript="";                                                // no script
 }
 if(!isset($bgpic))
 {
-  $bgpic="back.gif";                                            //custom background
+    $bgpic="back.gif";                                            //custom background
 }
 $title = $pageObj->title();
 // now to designate the header template and declare it

@@ -1,58 +1,137 @@
 <?php
+// TODO: Convert to Resistor class for REST
 function color2Num($color,$multi){ //color is color, returns string
     switch($color){
-      case "silver":
-        if($multi==1) return;
-        if($multi==2) return array(" m" ,.01);
-        return;
-      case "gold":
-        if($multi==1) return ".";
-        if($multi==2) return array(null,.1);
-        return;
-      case "black":
-        if($multi==1) return;
-        if($multi==2) return array(null,1);
-        return '0';
-      case "brown":
-        if($multi==1) return;
-        if($multi==2) return array("0",10);
-        return '1';
-      case "red":
-       if($multi==1) return ".";
-       if($multi==2) return array(" K",100);
-       return "2";
-      case "orange":
-        if($multi==1) return;
-        if($multi==2) return array(" K",1000);
-        return "3";
-      case "yellow":
-        if($multi==1) return;
-        if($multi==2) return array("0 K",10000);
-        return "4";
-      case "green":
-        if($multi==1) return ".";
-        if($multi==2) return array(" M",100000);
-        return "5";
-      case "blue":
-        if($multi==1) return;
-        if($multi==2) return array(" M",1000000);
-        return "6";
-      case "purple":
-        if($multi==1) return;
-        if($multi==2) return array("0 M",10000000);
-        return "7";
-      case "violet":
-        if($multi==1) return;
-        if($multi==2) return array("0 M",100000000);
-        return "7";
+        case "silver":
+            if ($multi == 1)
+            {
+                return;
+            }
+            if ($multi == 2)
+            {
+                return [" m", .01];
+            }
+            return;
+        case "gold":
+            if ($multi == 1)
+            {
+                return ".";
+            }
+            if ($multi == 2)
+            {
+                return [null, .1];
+            }
+            return;
+        case "black":
+            if ($multi == 1)
+            {
+                return;
+            }
+            if ($multi == 2)
+            {
+                return [null, 1];
+            }
+            return '0';
+        case "brown":
+          if ($multi == 1)
+            {
+                return;
+            }
+            if ($multi == 2)
+            {
+                return ["0", 10];
+            }
+            return '1';
+        case "red":
+          if ($multi == 1)
+            {
+                return ".";
+            }
+            if ($multi == 2)
+            {
+                return array(" K", 100);
+            }
+            return "2";
+        case "orange":
+            if ($multi == 1)
+            {
+                return;
+            }
+            if ($multi == 2)
+            {
+                return array(" K", 1000);
+            }
+            return "3";
+        case "yellow":
+          if ($multi == 1)
+            {
+                return;
+            }
+            if ($multi == 2)
+            {
+                return array("0 K", 10000);
+            }
+            return "4";
+        case "green":
+            if ($multi == 1)
+            {
+                return ".";
+            }
+            if ($multi == 2)
+            {
+                return array(" M", 100000);
+            }
+            return "5";
+        case "blue":
+            if ($multi == 1)
+            {
+                return;
+            }
+            if ($multi == 2)
+            {
+                return array(" M", 1000000);
+            }
+            return "6";
+        case "purple":
+            if ($multi == 1)
+            {
+                return;
+            }
+            if ($multi == 2)
+            {
+                return array("0 M", 10000000);
+            }
+            return "7";
+        case "violet":
+            if ($multi == 1)
+            {
+                return;
+            }
+            if ($multi == 2)
+            {
+                return array("0 M", 100000000);
+            }
+            return "7";
       case "grey":
-        if($multi==1) return;
-        if($multi==2) return array("00 M",1000000000);
-        return "8";
+            if ($multi == 1)
+            {
+                return;
+            }
+            if ($multi == 2)
+            {
+                return array("00 M", 1000000000);
+            }
+            return "8";
       case "white":
-        if($multi==1) return;
-        if($multi==2) return array("Not a valid multiplier",10000000000);
-        return "9";
+            if ($multi == 1)
+            {
+                return;
+            }
+            if ($multi == 2)
+            {
+                return array("Not a valid multiplier", 10000000000);
+            }
+            return "9";
   }
 } //end color2Num
 function getResType($type,$size){ 
@@ -61,19 +140,27 @@ function getResType($type,$size){
             return "Carbon Film"; 
         case "wire": return "Wire Wound"; 
         case "smd": 
-          if($size==NULL) $size = "NULL!";
+          if($size==NULL)
+          {
+              $size = "NULL!";
+          }
           return "SMD ($size)";
         default:
             return $type;
     }
 }
-if(isset($_POST['com'])){ // Parse command if it is set
-    startsql(); // Initialize sql so we can use it
+if(isset($_POST['com']) && is_string($_POST['com'])){ // Parse command if it is set
+    $db = startsql(); // Initialize sql so we can use it
     $command=stripslashes($_POST['com']); // Fetch the command; do some anti inject stuff
     if($command=="new"){
         $stmt = $db->prepare("INSERT INTO passives_res (type,color1,color2,multi,tollerance,wattage,quantity,used,extra) VALUES (?,?,?,?,?,?,?,?,?);"); // generic insert statement for resistors
         $stmt->execute(array($_POST['type'],$_POST['col1'],$_POST['col2'],$_POST['multi'],$_POST['tol'],$_POST['watt'],$_POST['qty'],$_POST['used'],($_POST['type']=="smd" ? "{\"smdsize\":\"".$_POST['extra1size']."\"}" : "{}"))); // Will awlays execute
-        if($_POST['sub']=="Add Resistors") $stmt->execute(array($_POST['type2'],$_POST['col12'],$_POST['col22'],$_POST['multi2'],$_POST['tol2'],$_POST['watt2'],$_POST['qty2'],$_POST['used2'], ($_POST['type2']=="smd" ? "{\"smdsize\" : \"".$_POST['extra2size']."\"}"  : "{}"))); 
+        if($_POST['sub']=="Add Resistors") 
+        {
+            $stmt->execute([$_POST['type2'],$_POST['col12'],$_POST['col22'],$_POST['multi2'],
+                                 $_POST['tol2'],$_POST['watt2'],$_POST['qty2'],$_POST['used2'],
+                                ($_POST['type2']=="smd" ? "{\"smdsize\" : \"".$_POST['extra2size']."\"}"  : "{}")]); 
+        }
     }
 }
 ?>
@@ -81,10 +168,16 @@ if(isset($_POST['com'])){ // Parse command if it is set
 <a href="passives.php">Back to passives home</a>
 <p><select onchange="goto('./passives.php/resistors'+this.value,false)"><option value="" <?if(!isset($cat[2])) echo "selected"; ?>>All<option value="/carbon" <?if(@$cat[2]=='carbon') echo "selected"; ?>>Carbon Film<option value="/wire" <?if(@$cat[2]=='wire') echo "selected"; ?>>Wire Wound<option value="/network" <?if(@$cat[2]=='nework') echo "selected"; ?>>Resistor Network<option value="smd" <?php if(@$cat[2]=="/smd") echo "selected";?>>SMD</select></p>
 <?
-  startsql();
-  if(isset($cat[2])) $stmt = $db->query("select * from passives_res where (type='".mysql_real_escape_string($cat[2])."') and ((user='".$user."') or (user is null)) ORDER BY multi,color1,color2,wattage;");
-  else $stmt = $db->query("select * from passives_res where (user='".$user."') or (user is null) ORDER BY multi,color1,color2,wattage;");
-  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$db = startsql();
+if (isset($cat[2]))
+{
+    $stmt = $db->query("select * from passives_res where (type='" . mysql_real_escape_string($cat[2]) . "') and ((user='" . $user . "') or (user is null)) ORDER BY multi,color1,color2,wattage;");
+} 
+else
+{
+    $stmt = $db->query("select * from passives_res where (user='" . $user . "') or (user is null) ORDER BY multi,color1,color2,wattage;");
+}
+$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
   if(count($result)>0){
       echo "<table border=1 class=\"tablesorter\" id=\"myTable\"><tr><!--th>Entry</th--><th>Qty</th><th>Value</th><th>Type</th><th>Toll.</th><th>Watts</th><th class=\"{sorter: false}\">AUR</th></tr>";
       foreach($result as $row)
@@ -97,7 +190,10 @@ if(isset($_POST['com'])){ // Parse command if it is set
         $type=getResType($row['type'],@$extras->smdsize); 
         echo "<tr>";
         $unused=$row['quantity']-$row['used'];
-        if($unused<0)$unused=0;
+        if ($unused < 0)
+        {
+            $unused = 0;
+        }
         //echo "<td>".$row['ID']."</td>";
         echo "<td>".$unused."/".$row['quantity']."</td>";
         echo "<td customkey=\"".$resvalraw."\"><a title=\"".$row['color1']."-".$row['color2']."-".$row['multi']."\"><font color=\"black\" decoration=\"none\">".$resval."&Omega;</font></a></td>";

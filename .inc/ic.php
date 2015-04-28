@@ -3,15 +3,25 @@ startsql();
 if(isset($_POST['com'])){ //check for Add/Update/Remove
   if($_POST['com']=="add"){
     $action=substr($_POST['val'],0,1);
-    if($action=='+' || $action=='-') $addval = $action." ".substr($_POST['val'],1);
-    else $addval = "+ $action";
-    $sql="update semiconductors_IC set quantity = quantity ".$addval." where ID=".$_POST['id'].";";
+    if ($action == '+' || $action == '-')
+        {
+            $addval = $action . " " . substr($_POST['val'], 1);
+        } else
+        {
+            $addval = "+ $action";
+        }
+        $sql="update semiconductors_IC set quantity = quantity ".$addval." where ID=".$_POST['id'].";";
     $db->query($sql);
   }elseif($_POST['com']=="use"){
     $action=substr($_POST['val'],0,1);
-    if($action=='+' || $action=='-')$addval = $action." ".substr($_POST['val'],1);
-    else $addval = "+ $action";
-    $sql="update semiconductors_IC set used = used ".$addval." where ID=".$_POST['id'].";";
+    if ($action == '+' || $action == '-')
+        {
+            $addval = $action . " " . substr($_POST['val'], 1);
+        } else
+        {
+            $addval = "+ $action";
+        }
+        $sql="update semiconductors_IC set used = used ".$addval." where ID=".$_POST['id'].";";
     $db->query($sql);
   }elseif($_POST['com']=="rm"){
     $sql="delete from semiconductors_IC where ID=".$_POST['id'].";";
@@ -25,7 +35,10 @@ if(isset($_POST['com'])){ //check for Add/Update/Remove
     echo "added ".$_POST['num'];
   }
 }//endif AUR
-if(!isset($cat[2])) $cat[2]=null;
+if (!isset($cat[2]))
+{
+    $cat[2] = null;
+}
 ?>
 <h1>Integrated Circuts</h1>
 <a href="semiconductors.php">Back to Silicon Valley</a>
@@ -69,14 +82,25 @@ if(!isset($cat[2])) $cat[2]=null;
         echo "<td>".$type."</td>";
         echo "<td>".$row['Pins']."</td>";
         echo "<td class=\"description\">".$row['Description']."</td><td>";
-        if(isset($row['datasheet'])){ 
+        if (isset($row['datasheet']))
+        {
             echo "<a target=\"_TAB\" href=\"";
-            if(preg_match("#^http#",$row['datasheet'])) echo $row['datasheet'];
-            elseif(preg_match("#^/#",$row['datasheet'])) echo "/datasheets".$row['datasheet'];
-            else echo "/datasheets/".$row['datasheet'];
-            echo "\">Datasheet</a>"; 
+            if (preg_match("#^http#", $row['datasheet']))
+            {
+                echo $row['datasheet'];
+            } elseif (preg_match("#^/#", $row['datasheet']))
+            {
+                echo "/datasheets" . $row['datasheet'];
+            } else
+            {
+                echo "/datasheets/" . $row['datasheet'];
+            }
+            echo "\">Datasheet</a>";
         }
-        else echo "&nbsp;";
+        else
+        {
+            echo "&nbsp;";
+        }
         echo "</td><td>".$row['locid']."</td>";
         echo "<td><form method=\"post\"><select name=\"com\" ><option value=\"add\">add<option value=\"use\">use<option value=\"rm\">remove</select><input type=\"text\" onKeyPress=\"return onlyNumbers()\" size=2 name=\"val\"><input type=\"image\" valign=\"middle\" src=\"go.gif\" width=30 height=16 border=0 value=\"\"><input type=\"hidden\" name=\"id\" value=\"".$row['ID']."\"></form></td>";
         echo "</tr>\n";

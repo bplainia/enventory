@@ -10,10 +10,12 @@ class Capacitors implements component {
             $this->makeTable();
         }
     }
+    
     function title()
     {
         return "Capacitors";
     }
+    
     function table()
     {
         return $this->table;
@@ -29,7 +31,8 @@ class Capacitors implements component {
                 if (strlen($value) == 2)
                 {
                     $power = -12;
-                } else
+                } 
+                else
                 {
                     $power = (int) substr($value, 2, 1) - 12;
                 }
@@ -38,11 +41,13 @@ class Capacitors implements component {
                 {
                     if ($power < -10)
                     {
-                        $output = $raw * pow(10, $power + 12) . " pF";
-                    } elseif ($power < -7)
+                        $output = $raw * pow(10, $power + 12) . "pF";
+                    } 
+                    elseif ($power < -7)
                     {
-                        $output = $raw * pow(10, $power + 9) . " nF";
-                    } else
+                        $output = $raw * pow(10, $power + 9) . "nF";
+                    } 
+                    else
                     {
                         $output = $raw * pow(10, $power + 6) . "&mu;F";
                     }
@@ -79,7 +84,7 @@ class Capacitors implements component {
             }
             return array($value." ".$unit,$rawValue);
         }
-      }
+    }
 
     function modComponent($id,$data)
     {
@@ -95,6 +100,7 @@ class Capacitors implements component {
         $sql="update passives_caps set quantity = quantity ".$addval." where ID=".$_POST['id'].";";
         $db->query($sql);
     }
+    
     function useComponent($id,$data)
     {
         $action=substr($_POST['val'],0,1);
@@ -106,19 +112,21 @@ class Capacitors implements component {
         {
             $addval = "+ $action";
         }
-        $sql="update passives_caps set used = used ".$addval." where ID=".$_POST['id'].";";
+        $sql = "update passives_caps set used = used ".$addval." where ID=".$_POST['id'].";";
         $db->query($sql);
     }
+    
     function delComponent($id)
     {
         // FIXME: what is $id for?
         $sql="delete from passives_caps where ID=".$_POST['id'].";";
         $db->query($sql);
     }
+    
     function addComponent($data)
     {
         // FIXME: what is $data for?
-        if ($_POST['valtype'] == 0)
+        if (isset($_POST['valtype']) && is_numeric($_POST['valtype']) && $_POST['valtype'] == 0)
         {
             $code = "true";
         } 
@@ -162,7 +170,7 @@ class Capacitors implements component {
           </tr>
         </thead>
         <tbody>';
-        $user = "benjamin";
+        $user = "benjamin"; // FIXME: remove default user
         if (isset($cat[2]))
         {
             $sql = "select * from passives_caps where type='" . $cat[2] . "' and ((user='" . $user . "') or (user is null))  order by value;";
@@ -196,6 +204,7 @@ class Capacitors implements component {
         $table .= "</tbody><tfoot><tr><td>$quantity</td></tr></tfooot></table>";
         $this->table = $table;
     }
+    
     function content()
     { // TODO: change php feilds to variables for the selection.
         $noselect = " selected";
@@ -207,12 +216,12 @@ class Capacitors implements component {
                 $axial = $noselect;
                 $noselect = "";
             }
-            if($cat[2]=='ceramic')
+            elseif($cat[2]=='ceramic')
             {
                 $ceramic = $noselect;
                 $noselect = "";
             }
-            if($cat[2]=='radial')
+            elseif($cat[2]=='radial')
             {
                 $radial = $noselect;
                 $noselect = "";
@@ -224,6 +233,7 @@ class Capacitors implements component {
   <p><select onchange="goto('passives.php/capacitors'+this.value,false)"><option value="" $noselect>All<option value="/radial" $radial>radial<option value="/axial" $axial>axial<option value="/ceramic" $ceramic>ceramic</select></p>
 EOD;
     }
+    
     function jscript()
     {
         return ""; // no javascript

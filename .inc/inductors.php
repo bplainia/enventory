@@ -34,7 +34,11 @@ if(isset($_POST['com'])){ //check for Add/Update/Remove
   $result = $db->query($sql);
   foreach($result->fetchAll(PDO::FETCH_ASSOC) as $row){
     if($row['code']) list($value,$valraw)=codetovalue($row['value']);
-    else { $value=$row['value']."&mu;F"; $valraw=$row['value']*pow(10,-6);}
+    else 
+    { 
+        $value=$row['value']."&mu;F"; 
+        $valraw=$row['value']*pow(10,-6);
+    }
     echo "<tr>";
     echo "<td>".$row['quantity']."</td>";
     echo "<td customkey=\"".number_format($valraw,13)."\">".$value."</td>";
@@ -42,7 +46,10 @@ if(isset($_POST['com'])){ //check for Add/Update/Remove
     echo "<td>".$row['length']."x".$row['width']."x".$row['height']."r".$row['radius']."</td>";
     echo "<td>".$row['Manufacturer']."</td>";
     echo "<td>".$row['Comments'];
-    if($row['code']) echo " (".$row['value'].")";
+    if($row['code']) 
+    {
+        echo " (".$row['value'].")";
+    }
     echo "</td>";
     echo "<td><form method=\"post\"><select name=\"com\" ><option value=\"add\">add<option value=\"use\">use<option value=\"rm\">remove</select><input type=\"text\" onKeyPress=\"return onlyNumbers()\" size=2 name=\"val\"><input type=\"image\" valign=\"middle\" src=\"go.gif\" width=30 height=16 border=0 value=\"\"><input type=\"hidden\" name=\"id\" value=\"".$row['ID']."\"></form></td>";
     echo "</tr>\n";
@@ -53,7 +60,7 @@ echo "</table>"; ?>
 <script language="javascript">
 //<!--
 function checkType(type){
-return false;
+    return false;
 }
 //-->
 </script>
@@ -77,9 +84,8 @@ return false;
 <tr><td><input type="hidden" name="com" value="new" /></td><td><input tabindex=12 type="submit" value="Add Inductor" /></td></tr>
 </table></form>
 <?php 
-}
-else{ //fallback if is not one of the above values ?>
-<h1>Pasives</h1>
+//fallback if is not one of the above values ?>
+<h1>Passives</h1>
 Select a Category:<ul>
 <li><a href="passives.php/capacitors">Capacitors</a></li>
 <li><a href="passives.php/resistors">Resistors</a></li>

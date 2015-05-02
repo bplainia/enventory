@@ -182,6 +182,10 @@ class Capacitors implements component {
         $result = $this->db->query($sql);
         $quantity=0;
         $this->components = $result->fetchAll(PDO::FETCH_ASSOC);
+        if(count($result)==0)
+        {
+            $this->table = "<p>No Capacitors in Database</p>";
+        }
         foreach($this->components as $row)
         {
             list($value,$valraw)=$this->calcValues($row['value'],$row['code']);

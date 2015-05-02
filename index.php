@@ -1,5 +1,5 @@
 <?php
-require_once "config.php";
+require_once ".inc/config.php";
 ob_start();
 
 interface page 

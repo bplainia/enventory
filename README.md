@@ -15,6 +15,7 @@ I will upload the new version when it is at least somewhat functional.
  - Create a setup script to create folders and check for requirements.
  - Update FPDF
 </s>
+
 # Requirements
  1. Be able to handle various electrical componets that do not have a set number of attributes (Like transformers). Will use json.
  2. Be able to export (csv, excel, pdf) data
